@@ -5,24 +5,90 @@
 <title>Comments</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
 <style>
-body { font-family: 'Roboto', sans-serif; background:#121212; color:#e0e0e0; margin:0; padding:0; }
-header { background:#1f1f1f; padding:20px; text-align:center; }
-header h1 { margin:0; color:#76c7c0; }
-main { padding:20px; max-width:800px; margin:auto; }
+body { 
+    font-family: 'Roboto', sans-serif; 
+    background:#121212; 
+    color:#e0e0e0; 
+    margin:0; 
+    padding:0; 
+}
 
-.question, .comment { background:#1f1f1f; padding:15px; margin-bottom:15px; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.5); }
+header { 
+    background:#1f1f1f; 
+    padding:20px; 
+    text-align:center; 
+}
 
-/* Номер маленький и серый */
-.question span, .comment span { color:#9e9e9e; font-size:0.8em; display:block; margin-bottom:5px; }
+header h1 { 
+    margin:0; 
+    color:#76c7c0; 
+}
 
-/* Текст вопроса и комментариев белый и крупнее */
-.question p, .comment p { color:#ffffff; margin:0; font-size:1em; }
+main { 
+    padding:20px; 
+    max-width:800px; 
+    margin:auto; 
+}
 
-textarea { width:100%; padding:10px; border-radius:8px; border:none; margin-bottom:10px; background:#1f1f1f; color:#e0e0e0; }
-input[type="submit"] { padding:10px 20px; background:#76c7c0; color:#121212; border:none; border-radius:8px; cursor:pointer; }
-input[type="submit"]:hover { background:#4fa09a; }
-a.button { display:inline-block; padding:10px 20px; background:#76c7c0; color:#121212; text-decoration:none; border-radius:8px; margin-top:10px; }
-a.button:hover { background:#4fa09a; }
+.question, .comment { 
+    background:#1f1f1f; 
+    padding:15px; 
+    margin-bottom:15px; 
+    border-radius:10px; 
+    box-shadow:0 2px 10px rgba(0,0,0,0.5); 
+}
+
+/* Номер и юзернейм — маленький и серый */
+.question span, .comment span {
+    color: #9e9e9e;
+    font-size: 0.75em; /* уменьшенный размер */
+    display: block;    /* чтобы переносилось на отдельную строку */
+    margin-bottom: 5px;
+}
+
+/* Текст вопроса и комментариев — белый и крупнее */
+.question p, .comment p {
+    color: #ffffff;
+    font-size: 1em;
+    margin: 0;
+}
+
+textarea { 
+    width:100%; 
+    padding:10px; 
+    border-radius:8px; 
+    border:none; 
+    margin-bottom:10px; 
+    background:#1f1f1f; 
+    color:#e0e0e0; 
+}
+
+input[type="submit"] { 
+    padding:10px 20px; 
+    background:#76c7c0; 
+    color:#121212; 
+    border:none; 
+    border-radius:8px; 
+    cursor:pointer; 
+}
+
+input[type="submit"]:hover { 
+    background:#4fa09a; 
+}
+
+a.button { 
+    display:inline-block; 
+    padding:10px 20px; 
+    background:#76c7c0; 
+    color:#121212; 
+    text-decoration:none; 
+    border-radius:8px; 
+    margin-top:10px; 
+}
+
+a.button:hover { 
+    background:#4fa09a; 
+}
 
 /* Адаптивность */
 @media (max-width: 600px) {
