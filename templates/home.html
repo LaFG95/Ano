@@ -2,72 +2,23 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Анонимные советы</title>
+<title>Anonymous Advice</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
 <style>
-body {
-    font-family: 'Roboto', sans-serif;
-    background-color: #121212;
-    color: #e0e0e0;
-    margin: 0;
-    padding: 0;
-    scroll-behavior: smooth;
-}
-header {
-    background: #1f1f1f;
-    padding: 20px;
-    text-align: center;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-    position: sticky;
-    top: 0;
-    z-index: 10;
-}
-header h1 {
-    margin: 0;
-    color: #76c7c0;
-}
-main {
-    padding: 20px;
-    max-width: 800px;
-    margin: auto;
-}
-.question {
-    background: #1f1f1f;
-    padding: 15px;
-    margin-bottom: 15px;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.5);
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-.question:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.6);
-}
-.question span {
-    color: #9e9e9e;
-    font-size: 0.9em;
-}
-a.button {
-    display: inline-block;
-    padding: 10px 20px;
-    background: #76c7c0;
-    color: #121212;
-    text-decoration: none;
-    border-radius: 8px;
-    margin-top: 10px;
-    margin-right: 10px;
-    transition: background 0.2s, transform 0.2s;
-}
-a.button:hover {
-    background: #4fa09a;
-    transform: scale(1.05);
-}
+body { font-family: 'Roboto', sans-serif; background-color: #121212; color: #e0e0e0; margin:0; padding:0; }
+header { background:#1f1f1f; padding:20px; text-align:center; }
+header h1 { margin:0; color:#76c7c0; }
+main { padding:20px; max-width:800px; margin:auto; }
+.question { background:#1f1f1f; padding:15px; margin-bottom:15px; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.5); }
+.question span { color:#9e9e9e; font-size:0.9em; }
+a.button { display:inline-block; padding:10px 20px; background:#76c7c0; color:#121212; text-decoration:none; border-radius:8px; margin-top:10px; }
+a.button:hover { background:#4fa09a; }
 </style>
 </head>
 <body>
 <header>
-    <h1>Анонимные советы</h1>
-    <a class="button" href="/ask">Задать вопрос</a>
+<h1>Anonymous Advice</h1>
+<a class="button" href="/ask">Ask a Question</a>
 </header>
 <main>
 {% for q in questions %}
@@ -75,12 +26,12 @@ a.button:hover {
     <span>#{{ q[0] }} | {{ q[2] }}</span>
     <p>{{ q[1] }}</p>
     {% if is_admin %}
-    <a href="/delete/{{ q[0] }}?admin=supersecret" class="button">Удалить</a>
+    <a href="/delete/{{ q[0] }}?admin=supersecret" class="button">Delete</a>
     {% endif %}
-    <a class="button" href="/question/{{ q[0] }}">Комментарии</a>
+    <a class="button" href="/question/{{ q[0] }}">Comments</a>
 </div>
 {% else %}
-<p>Вопросов пока нет.</p>
+<p>No questions yet.</p>
 {% endfor %}
 </main>
 </body>
