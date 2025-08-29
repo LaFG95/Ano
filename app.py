@@ -93,5 +93,10 @@ def add_comment(qid):
 
 # ----------------- запуск -----------------
 if __name__ == "__main__":
-    init_db()  # создаём таблицы
-    app.run(debug=True)
+    import sys
+    if "init" in sys.argv:
+        init_db()
+    else:
+        app.run(host="0.0.0.0", port=5000)
+
+
