@@ -1,25 +1,31 @@
 from flask import Flask, render_template, request, redirect
-import sqlite3
+import psycopg2
 import random
 import os
 
 app = Flask(__name__)
-DB_NAME = "questions.db"
+
+# Получаем URL базы из переменных окружения Render
+DB_URL = os.environ.get("DATABASE_URL")
 
 # ----------------- вспомогательные функции -----------------
 def generate_username():
     """Генерируем случайный анонимный ник."""
     return "Anon" + str(random.randint(1000, 9999))
 
+def get_conn():
+    """Возвращает соединение с PostgreSQL."""
+    return psycopg2.connect(DB_URL)
+
 def init_db():
     """Создание таблиц, если ещё не существуют."""
-    conn = sqlite3.connect(DB_NAME)
+    conn = get_conn()
     c = conn.cursor()
     
     # Таблица вопросов
     c.execute("""
     CREATE TABLE IF NOT EXISTS questions (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         text TEXT NOT NULL,
         username TEXT NOT NULL
     )
@@ -28,11 +34,10 @@ def init_db():
     # Таблица комментариев
     c.execute("""
     CREATE TABLE IF NOT EXISTS comments (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        question_id INTEGER NOT NULL,
+        id SERIAL PRIMARY KEY,
+        question_id INTEGER NOT NULL REFERENCES questions(id) ON DELETE CASCADE,
         text TEXT NOT NULL,
-        username TEXT NOT NULL,
-        FOREIGN KEY (question_id) REFERENCES questions(id)
+        username TEXT NOT NULL
     )
     """)
     
@@ -43,7 +48,7 @@ def init_db():
 @app.route("/")
 def home():
     """Главная страница со списком вопросов."""
-    conn = sqlite3.connect(DB_NAME)
+    conn = get_conn()
     c = conn.cursor()
     c.execute("SELECT id, text, username FROM questions ORDER BY id DESC")
     questions = c.fetchall()
@@ -63,9 +68,9 @@ def submit():
     question = request.form.get("question")
     if question:
         username = generate_username()
-        conn = sqlite3.connect(DB_NAME)
+        conn = get_conn()
         c = conn.cursor()
-        c.execute("INSERT INTO questions (text, username) VALUES (?, ?)", (question, username))
+        c.execute("INSERT INTO questions (text, username) VALUES (%s, %s)", (question, username))
         conn.commit()
         conn.close()
         return render_template("thank_you.html", username=username)
@@ -74,11 +79,11 @@ def submit():
 @app.route("/question/<int:qid>")
 def question_page(qid):
     """Страница с конкретным вопросом и комментариями."""
-    conn = sqlite3.connect(DB_NAME)
+    conn = get_conn()
     c = conn.cursor()
-    c.execute("SELECT id, text, username FROM questions WHERE id=?", (qid,))
+    c.execute("SELECT id, text, username FROM questions WHERE id=%s", (qid,))
     question = c.fetchone()
-    c.execute("SELECT id, text, username FROM comments WHERE question_id=? ORDER BY id ASC", (qid,))
+    c.execute("SELECT id, text, username FROM comments WHERE question_id=%s ORDER BY id ASC", (qid,))
     comments = c.fetchall()
     conn.close()
     is_admin = request.args.get("admin") == "supersecret"
@@ -90,9 +95,9 @@ def add_comment(qid):
     comment_text = request.form.get("comment")
     if comment_text:
         username = generate_username()
-        conn = sqlite3.connect(DB_NAME)
+        conn = get_conn()
         c = conn.cursor()
-        c.execute("INSERT INTO comments (question_id, text, username) VALUES (?, ?, ?)", 
+        c.execute("INSERT INTO comments (question_id, text, username) VALUES (%s, %s, %s)", 
                   (qid, comment_text, username))
         conn.commit()
         conn.close()
@@ -104,10 +109,9 @@ def delete_question(qid):
     """Удаление вопроса и всех его комментариев (только админ)."""
     if request.args.get("admin") != "supersecret":
         return "Нет доступа", 403
-    conn = sqlite3.connect(DB_NAME)
+    conn = get_conn()
     c = conn.cursor()
-    c.execute("DELETE FROM questions WHERE id=?", (qid,))
-    c.execute("DELETE FROM comments WHERE question_id=?", (qid,))
+    c.execute("DELETE FROM questions WHERE id=%s", (qid,))
     conn.commit()
     conn.close()
     return redirect("/?admin=supersecret")
@@ -117,19 +121,18 @@ def delete_comment(cid):
     """Удаление конкретного комментария (только админ)."""
     if request.args.get("admin") != "supersecret":
         return "Нет доступа", 403
-    conn = sqlite3.connect(DB_NAME)
+    conn = get_conn()
     c = conn.cursor()
-    c.execute("SELECT question_id FROM comments WHERE id=?", (cid,))
+    c.execute("SELECT question_id FROM comments WHERE id=%s", (cid,))
     qid = c.fetchone()
     if qid:
         qid = qid[0]
-        c.execute("DELETE FROM comments WHERE id=?", (cid,))
+        c.execute("DELETE FROM comments WHERE id=%s", (cid,))
         conn.commit()
     conn.close()
     return redirect(f"/question/{qid}?admin=supersecret")
 
 # ----------------- запуск -----------------
 if __name__ == "__main__":
-    # Инициализация базы
     init_db()
     app.run(debug=True)
