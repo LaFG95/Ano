@@ -36,7 +36,7 @@ def init_db():
     """)
     conn.commit()
     conn.close()
-    print("Таблицы созданы или уже существуют.")
+    print("✅ Таблицы проверены/созданы.")
 
 # ----------------- маршруты -----------------
 @app.route("/")
@@ -93,10 +93,8 @@ def add_comment(qid):
 
 # ----------------- запуск -----------------
 if __name__ == "__main__":
-    import sys
-    if "init" in sys.argv:
-        init_db()
-    else:
-        app.run(host="0.0.0.0", port=5000)
-
-
+    init_db()  # <-- авто-создание таблиц при старте
+    app.run(host="0.0.0.0", port=5000)
+else:
+    # Если запущено через gunicorn на Render
+    init_db()
