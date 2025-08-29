@@ -46,7 +46,11 @@ def home():
     c.execute("SELECT id, text, username FROM questions ORDER BY id DESC")
     questions = c.fetchall()
     conn.close()
-    return render_template("home.html", questions=questions)
+
+    # проверка админа
+    is_admin = request.args.get("admin") == "supersecret"
+
+    return render_template("home.html", questions=questions, is_admin=is_admin)
 
 @app.route("/ask")
 def ask():
@@ -74,7 +78,11 @@ def question_page(qid):
     c.execute("SELECT id, text, username FROM comments WHERE question_id=%s ORDER BY id ASC", (qid,))
     comments = c.fetchall()
     conn.close()
-    return render_template("question.html", question=question, comments=comments)
+
+    # проверка админа
+    is_admin = request.args.get("admin") == "supersecret"
+
+    return render_template("question.html", question=question, comments=comments, is_admin=is_admin)
 
 @app.route("/comment/<int:qid>", methods=["POST"])
 def add_comment(qid):
@@ -91,10 +99,37 @@ def add_comment(qid):
         conn.close()
     return redirect(f"/question/{qid}")
 
+# ----------------- админка -----------------
+@app.route("/delete/<int:qid>")
+def delete_question(qid):
+    if request.args.get("admin") != "supersecret":
+        return "Нет доступа", 403
+    conn = get_conn()
+    c = conn.cursor()
+    c.execute("DELETE FROM questions WHERE id=%s", (qid,))
+    c.execute("DELETE FROM comments WHERE question_id=%s", (qid,))
+    conn.commit()
+    conn.close()
+    return redirect("/?admin=supersecret")
+
+@app.route("/delete_comment/<int:cid>")
+def delete_comment(cid):
+    if request.args.get("admin") != "supersecret":
+        return "Нет доступа", 403
+    conn = get_conn()
+    c = conn.cursor()
+    c.execute("SELECT question_id FROM comments WHERE id=%s", (cid,))
+    qid = c.fetchone()
+    if qid:
+        qid = qid[0]
+        c.execute("DELETE FROM comments WHERE id=%s", (cid,))
+        conn.commit()
+    conn.close()
+    return redirect(f"/question/{qid}?admin=supersecret")
+
 # ----------------- запуск -----------------
 if __name__ == "__main__":
-    init_db()  # <-- авто-создание таблиц при старте
+    init_db()  # авто-создание таблиц при старте
     app.run(host="0.0.0.0", port=5000)
 else:
-    # Если запущено через gunicorn на Render
-    init_db()
+    init_db()  # если через gunicorn на Render
