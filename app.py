@@ -7,22 +7,18 @@ app = Flask(__name__)
 
 # ----------------- вспомогательные функции -----------------
 def generate_username():
-    """Генерируем случайный анонимный ник."""
     return "Anon" + str(random.randint(1000, 9999))
 
 def get_conn():
-    """Возвращает соединение с PostgreSQL из переменной окружения DATABASE_URL."""
     db_url = os.environ.get("DATABASE_URL")
     if not db_url:
         raise Exception("DATABASE_URL не задана")
     return psycopg2.connect(db_url)
 
 def init_db():
-    """Создание таблиц, если ещё не существуют."""
+    """Создаём таблицы, если их ещё нет."""
     conn = get_conn()
     c = conn.cursor()
-    
-    # Таблица вопросов
     c.execute("""
         CREATE TABLE IF NOT EXISTS questions (
             id SERIAL PRIMARY KEY,
@@ -30,8 +26,6 @@ def init_db():
             username TEXT NOT NULL
         )
     """)
-    
-    # Таблица комментариев
     c.execute("""
         CREATE TABLE IF NOT EXISTS comments (
             id SERIAL PRIMARY KEY,
@@ -40,29 +34,26 @@ def init_db():
             username TEXT NOT NULL
         )
     """)
-    
     conn.commit()
     conn.close()
+    print("Таблицы созданы или уже существуют.")
 
 # ----------------- маршруты -----------------
 @app.route("/")
 def home():
-    """Главная страница со списком вопросов."""
     conn = get_conn()
     c = conn.cursor()
     c.execute("SELECT id, text, username FROM questions ORDER BY id DESC")
     questions = c.fetchall()
     conn.close()
-    return render_template("home.html", questions=questions, is_admin=False)
+    return render_template("home.html", questions=questions)
 
 @app.route("/ask")
 def ask():
-    """Страница формы для нового вопроса."""
     return render_template("ask.html")
 
 @app.route("/submit", methods=["POST"])
 def submit():
-    """Обработка отправки вопроса."""
     question = request.form.get("question")
     if question:
         username = generate_username()
@@ -76,7 +67,6 @@ def submit():
 
 @app.route("/question/<int:qid>")
 def question_page(qid):
-    """Страница с конкретным вопросом и комментариями."""
     conn = get_conn()
     c = conn.cursor()
     c.execute("SELECT id, text, username FROM questions WHERE id=%s", (qid,))
@@ -88,7 +78,6 @@ def question_page(qid):
 
 @app.route("/comment/<int:qid>", methods=["POST"])
 def add_comment(qid):
-    """Добавление комментария к вопросу."""
     comment_text = request.form.get("comment")
     if comment_text:
         username = generate_username()
@@ -104,5 +93,5 @@ def add_comment(qid):
 
 # ----------------- запуск -----------------
 if __name__ == "__main__":
-    init_db()  # создаём таблицы при старте
+    init_db()  # создаём таблицы
     app.run(debug=True)
