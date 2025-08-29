@@ -12,7 +12,7 @@ def generate_username():
     return "Anon" + str(random.randint(1000, 9999))
 
 def init_db():
-    """Создание таблиц (если ещё не существуют)."""
+    """Создание таблиц, если ещё не существуют."""
     conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
     
@@ -130,10 +130,6 @@ def delete_comment(cid):
 
 # ----------------- запуск -----------------
 if __name__ == "__main__":
-    # Если базы ещё нет — создаём
-    if not os.path.exists(DB_NAME):
-        init_db()
-    else:
-        # на всякий случай проверим схему
-        init_db()
+    # Инициализация базы
+    init_db()
     app.run(debug=True)
