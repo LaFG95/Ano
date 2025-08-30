@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, jsonify
+from flask import Flask, render_template, request, redirect
 import os
 import psycopg2
 import random
@@ -117,16 +117,16 @@ def delete_comment(cid, qid):
     conn.close()
     return redirect(f"/question/{qid}?admin=supersecret")
 
+# ----------------- очистка всех вопросов -----------------
 @app.route("/delete_all")
 def delete_all():
     if request.args.get("admin") != "supersecret":
         return "Нет доступа", 403
     conn = get_conn()
     c = conn.cursor()
-    # Удаляем все комментарии и вопросы
     c.execute("DELETE FROM comments")
     c.execute("DELETE FROM questions")
-    # Сбрасываем последовательность автоинкремента
+    # Сброс последовательностей, чтобы новые id начинались с 1
     c.execute("ALTER SEQUENCE questions_id_seq RESTART WITH 1")
     c.execute("ALTER SEQUENCE comments_id_seq RESTART WITH 1")
     conn.commit()
