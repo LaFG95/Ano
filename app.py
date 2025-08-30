@@ -123,12 +123,11 @@ def delete_all():
         return "Нет доступа", 403
     conn = get_conn()
     c = conn.cursor()
-    # Удаляем все комментарии и вопросы
     c.execute("DELETE FROM comments")
     c.execute("DELETE FROM questions")
-    # Сбрасываем последовательность автоинкремента
-    c.execute("ALTER SEQUENCE questions_id_seq RESTART WITH 1")
-    c.execute("ALTER SEQUENCE comments_id_seq RESTART WITH 1")
+    # Сброс последовательностей
+    c.execute("SELECT setval('questions_id_seq', 1, false)")
+    c.execute("SELECT setval('comments_id_seq', 1, false)")
     conn.commit()
     conn.close()
     return redirect("/?admin=supersecret")
@@ -140,3 +139,4 @@ if __name__ == "__main__":
 else:
     # Если запущено через gunicorn на Render
     init_db()
+
