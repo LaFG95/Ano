@@ -47,7 +47,8 @@ main {
     transition: background 0.3s, color 0.3s;
 }
 
-body.light .question, body.light .comment {
+body.light .question, 
+body.light .comment {
     background: #ffffff;
     color: #121212;
 }
@@ -60,7 +61,7 @@ body.light .question, body.light .comment {
 }
 
 .question p, .comment p {
-    color: #ffffff;
+    color: inherit; /* теперь цвет текста меняется в зависимости от темы */
     font-size: 1em;
     margin: 0;
 }
