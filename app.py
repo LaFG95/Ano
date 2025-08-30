@@ -46,10 +46,7 @@ def home():
     c.execute("SELECT id, text, username FROM questions ORDER BY id DESC")
     questions = c.fetchall()
     conn.close()
-
-    # проверка админа
     is_admin = request.args.get("admin") == "supersecret"
-
     return render_template("home.html", questions=questions, is_admin=is_admin)
 
 @app.route("/ask")
@@ -78,11 +75,7 @@ def question_page(qid):
     c.execute("SELECT id, text, username FROM comments WHERE question_id=%s ORDER BY id ASC", (qid,))
     comments = c.fetchall()
     conn.close()
-
-    # проверка админа
-    is_admin = request.args.get("admin") == "supersecret"
-
-    return render_template("question.html", question=question, comments=comments, is_admin=is_admin)
+    return render_template("question.html", question=question, comments=comments)
 
 @app.route("/comment/<int:qid>", methods=["POST"])
 def add_comment(qid):
@@ -119,11 +112,9 @@ def delete_comment(cid):
     conn = get_conn()
     c = conn.cursor()
     c.execute("SELECT question_id FROM comments WHERE id=%s", (cid,))
-    qid = c.fetchone()
-    if qid:
-        qid = qid[0]
-        c.execute("DELETE FROM comments WHERE id=%s", (cid,))
-        conn.commit()
+    qid = c.fetchone()[0]
+    c.execute("DELETE FROM comments WHERE id=%s", (cid,))
+    conn.commit()
     conn.close()
     return redirect(f"/question/{qid}?admin=supersecret")
 
@@ -132,4 +123,4 @@ if __name__ == "__main__":
     init_db()  # авто-создание таблиц при старте
     app.run(host="0.0.0.0", port=5000)
 else:
-    init_db()  # если через gunicorn на Render
+    init_db()
