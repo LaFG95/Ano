@@ -16,4 +16,42 @@ input[type="submit"]:hover{background:#4fa09a;}
 a.button{display:inline-block;padding:10px 20px;background:#76c7c0;color:#121212;text-decoration:none;border-radius:8px;margin-top:10px;}
 a.button:hover{background:#4fa09a;}
 .fade-out{opacity:0;transform:translateY(-20px);}
-@media(max-width:600px){main{padding:10px;}.question,.comment{padding:10px;}a.button,input[type="submit"]{
+@media(max-width:600px){main{padding:10px;}.question,.comment{padding:10px;}a.button,input[type="submit"]{width:100%;box-sizing:border-box;text-align:center;}}
+</style>
+</head>
+<body>
+<header>
+<h1>Comments</h1>
+<a class="button" href="/">Back to Home</a>
+</header>
+<main>
+<div class="question">
+    <span>#{{ question[0] }} | From: {{ question[2] }}</span>
+    <p>{{ question[1] }}</p>
+    {% if request.args.get("admin")=="supersecret" %}
+    <a href="javascript:void(0);" onclick="confirmDelete('/delete/{{ question[0] }}?admin=supersecret','q{{ question[0] }}')" class="button">Delete question and all comments</a>
+    {% endif %}
+</div>
+<h2>Comments</h2>
+{% for c in comments %}
+<div class="comment" id="c{{ c[0] }}">
+    <span>{{ c[2] }}</span>
+    <p>{{ c[1] }}</p>
+    {% if request.args.get("admin")=="supersecret" %}
+    <a href="javascript:void(0);" onclick="confirmDelete('/delete_comment/{{ c[0] }}?admin=supersecret','c{{ c[0] }}')" class="button">Delete</a>
+    {% endif %}
+</div>
+{% else %}
+<p>No comments yet.</p>
+{% endfor %}
+<h3>Add a Comment</h3>
+<form action="/comment/{{ question[0] }}" method="post">
+<textarea name="comment" rows="3" placeholder="Write your comment..."></textarea><br>
+<input type="submit" value="Submit">
+</form>
+<script>
+function confirmDelete(url,elId){if(confirm("Вы уверены, что хотите удалить?")){const el=document.getElementById(elId);el.classList.add("fade-out");setTimeout(()=>{window.location.href=url;},300);}}
+</script>
+</main>
+</body>
+</html>
