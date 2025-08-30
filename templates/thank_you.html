@@ -3,16 +3,52 @@
 <head>
 <meta charset="UTF-8">
 <title>Thank You!</title>
-<link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 <style>
-body { font-family:'Roboto', sans-serif; background:#121212; color:#e0e0e0; text-align:center; padding:50px; }
-a.button { display:inline-block; padding:10px 20px; background:#76c7c0; color:#121212; text-decoration:none; border-radius:8px; margin-top:20px; }
-a.button:hover { background:#4fa09a; }
+body {
+    font-family:'Roboto', sans-serif;
+    background:#121212;
+    color:#e0e0e0;
+    text-align:center;
+    padding:50px;
+    transition: background 0.3s, color 0.3s;
+}
+
+/* Светлая тема */
+body.light {
+    background-color:#f5f5f5;
+    color:#121212;
+}
+
+a.button {
+    display:inline-block;
+    padding:10px 20px;
+    background:#76c7c0;
+    color:#121212;
+    text-decoration:none;
+    border-radius:8px;
+    margin-top:20px;
+    transition: background 0.2s, transform 0.2s;
+}
+a.button:hover {
+    background:#4fa09a;
+    transform: scale(1.05);
+}
 </style>
 </head>
 <body>
 <h1>Thank you! Your question has been submitted.</h1>
 <p>Your username: {{ username }}</p>
 <a class="button" href="/">Back to Home</a>
+
+<script>
+// Применяем сохранённую тему сразу
+(function(){
+    const theme = localStorage.getItem("theme");
+    if(theme === "light"){
+        document.body.classList.add("light");
+    }
+})();
+</script>
 </body>
 </html>
