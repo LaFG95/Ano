@@ -5,19 +5,108 @@
 <title>Comments</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 <style>
-body { font-family:'Roboto', sans-serif; background:#121212; color:#e0e0e0; margin:0; padding:0; }
-header { background:#1f1f1f; padding:20px; text-align:center; }
+body { 
+    font-family:'Roboto', sans-serif; 
+    background:#121212; 
+    color:#e0e0e0; 
+    margin:0; 
+    padding:0; 
+    transition: background 0.3s, color 0.3s;
+}
+
+/* Светлая тема */
+body.light {
+    background-color: #f5f5f5;
+    color: #121212;
+}
+
+header { 
+    background:#1f1f1f; 
+    padding:20px; 
+    text-align:center; 
+    transition: background 0.3s;
+}
+body.light header {
+    background: #e0e0e0;
+}
+
 header h1 { margin:0; color:#76c7c0; }
+
 main { padding:20px; max-width:800px; margin:auto; }
-.question, .comment { background:#1f1f1f; padding:15px; margin-bottom:15px; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.5); transition: all 0.3s ease; }
+
+.question, .comment { 
+    background:#1f1f1f; 
+    padding:15px; 
+    margin-bottom:15px; 
+    border-radius:10px; 
+    box-shadow:0 2px 10px rgba(0,0,0,0.5); 
+    transition: all 0.3s ease; 
+}
+body.light .question, body.light .comment { 
+    background:#ffffff; 
+    color:#121212; 
+}
+
 .question span, .comment span { color:#9e9e9e; font-size:0.75em; display:block; margin-bottom:5px; }
-.question p, .comment p { color:#fff; font-size:1em; margin:0; }
-textarea { width:100%; padding:10px; border-radius:8px; border:none; margin-bottom:10px; background:#1f1f1f; color:#e0e0e0; }
-input[type="submit"] { padding:10px 20px; background:#76c7c0; color:#121212; border:none; border-radius:8px; cursor:pointer; }
-input[type="submit"]:hover { background:#4fa09a; }
-a.button { display:inline-block; padding:10px 20px; background:#76c7c0; color:#121212; text-decoration:none; border-radius:8px; margin-top:10px; }
-a.button:hover { background:#4fa09a; }
-@media (max-width:600px){ main{padding:10px;} .question,.comment{padding:10px;} a.button,input[type="submit"]{width:100%; box-sizing:border-box; text-align:center;} }
+.question p, .comment p { font-size:1em; margin:0; }
+
+textarea { 
+    width:100%; 
+    padding:10px; 
+    border-radius:8px; 
+    border:none; 
+    margin-bottom:10px; 
+    background:#1f1f1f; 
+    color:#e0e0e0; 
+    transition: background 0.3s, color 0.3s;
+}
+body.light textarea { background:#f5f5f5; color:#121212; }
+
+input[type="submit"] { 
+    padding:10px 20px; 
+    background:#76c7c0; 
+    color:#121212; 
+    border:none; 
+    border-radius:8px; 
+    cursor:pointer; 
+    transition: background 0.2s, transform 0.2s;
+}
+input[type="submit"]:hover { background:#4fa09a; transform: scale(1.05); }
+
+a.button { 
+    display:inline-block; 
+    padding:10px 20px; 
+    background:#76c7c0; 
+    color:#121212; 
+    text-decoration:none; 
+    border-radius:8px; 
+    margin-top:10px; 
+    transition: background 0.2s, transform 0.2s;
+}
+a.button:hover { background:#4fa09a; transform: scale(1.05); }
+
+/* Адаптивность */
+@media (max-width:600px){ 
+    main{padding:10px;} 
+    .question,.comment{padding:10px;} 
+    a.button,input[type="submit"]{width:100%; box-sizing:border-box; text-align:center;} 
+}
+
+/* Toast (если захочешь показывать уведомления) */
+#toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #76c7c0;
+    color: #121212;
+    padding: 10px 20px;
+    border-radius: 8px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s;
+}
+#toast.show { opacity: 1; }
 </style>
 </head>
 <body>
@@ -25,6 +114,7 @@ a.button:hover { background:#4fa09a; }
 <h1>Comments</h1>
 <a class="button" href="/">Back to Home</a>
 </header>
+
 <main>
 <div class="question">
     <span>#{{ question[0] }} | From: {{ question[2] }}</span>
@@ -53,7 +143,30 @@ a.button:hover { background:#4fa09a; }
 <input type="submit" value="Submit">
 </form>
 </main>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+// Применяем сохранённую тему сразу
+(function(){
+    const theme = localStorage.getItem("theme");
+    if(theme === "light"){
+        document.body.classList.add("light");
+    }
+})();
+
+// Функция для показа toast
+function showToast(message){
+    const toast = document.getElementById("toast");
+    toast.textContent = message;
+    toast.classList.add("show");
+    setTimeout(() => toast.classList.remove("show"), 2000);
+}
+
+// Пример: если есть query ?added=1, показать уведомление
+const params = new URLSearchParams(window.location.search);
+if(params.get("added") === "1") showToast("Comment added!");
+</script>
 </body>
 </html>
-
-
